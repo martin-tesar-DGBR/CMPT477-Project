@@ -1,0 +1,15 @@
+.DS_Store
+._*
+*.swp
+*~
+
+# Java
+*.class
+
+# Maven target
+target
+
+# IntelliJ IDEA
+.idea
+*.iml
+
