@@ -1,0 +1,13 @@
+{
+    x := 1
+    y :=26
+    z := x + y
+    =y* z)}*:=if-40+foo
+    if x>z*y {
+        x := 1
+    }
+    else {
+        y := z
+    }
+    print(x)
+}
