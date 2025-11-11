@@ -9,9 +9,10 @@ public class BoolOperatorNode extends ASTNode {
 		AND,
 		NOT,
 	}
-	Operator op;
-	ASTNode left;
-	ASTNode right;
+
+	public Operator op;
+	public ASTNode left;
+	public ASTNode right;
 
 	BoolOperatorNode(StaticTokenImpl token, ASTNode left, ASTNode right) {
 		super(token.getLexeme());

@@ -4,13 +4,23 @@
     z := x * 2 + y * (12 + x)
     if x>z*y {
         x := 1
+        s := 43
+        t := 12 - x
     }
     else {
         y := z
         if x < 12 {
+            s := 15
             y := y + x
         }
-        else {}
+        else {
+            s := 12
+            t := 14
+        }
+        r := s + x
     }
+    print(s)
+    print(t)
+    print(r)
     print(x)
 }

@@ -11,9 +11,9 @@ public class IntOperatorNode extends ASTNode {
 		NEGATE,
 	}
 
-	ASTNode left;
-	ASTNode right;
-	Operator op;
+	public Operator op;
+	public ASTNode left;
+	public ASTNode right;
 
 	public IntOperatorNode(StaticTokenImpl token, ASTNode left, ASTNode right) {
 		super(token.getLexeme());

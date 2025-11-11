@@ -3,7 +3,7 @@ package ast;
 import lexer.LocatedString;
 
 public class CheckNode extends ASTNode {
-	ASTNode expr;
+	public ASTNode expr;
 
 	CheckNode(LocatedString lexeme, ASTNode expr) {
 		super(lexeme);

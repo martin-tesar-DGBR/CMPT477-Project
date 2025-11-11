@@ -10,8 +10,8 @@ public class BoolCompareNode extends ASTNode {
 		LESSER,
 	}
 
-	Compare cmp;
-	ASTNode left, right;
+	public Compare cmp;
+	public ASTNode left, right;
 
 	BoolCompareNode(StaticTokenImpl token, ASTNode left, ASTNode right) {
 		super(token.getLexeme());

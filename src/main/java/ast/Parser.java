@@ -6,8 +6,8 @@ import logging.*;
 import java.util.*;
 
 public class Parser {
-	Lexer stream;
-	Logger logger;
+	public Lexer stream;
+	public Logger logger;
 
 	public Parser(Lexer stream) {
 		this.stream = stream;
@@ -176,7 +176,7 @@ public class Parser {
 		Token assign = stream.peek();
 		expect(StaticToken.ASSIGN);
 		ASTNode expr = parseIntExpr();
-		return new AssignmentNode(assign.getLexeme(), new LabelNode(label.getLexeme()), expr);
+		return new AssignmentNode(assign.getLexeme(), label.getLexeme(), expr);
 	}
 
 	private ASTNode parseIntExpr() {

@@ -5,6 +5,6 @@ public enum LogLevel {
 	WARNING,
 	SEVERE,
 
-	// here to override any logging, should not be used
+	// here to override logs in configuration, should not be used when logging
 	NONE,
 }

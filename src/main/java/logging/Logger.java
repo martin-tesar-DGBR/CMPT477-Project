@@ -15,6 +15,8 @@ public class Logger {
 		}
 	}
 
+	// returns the highest log level encountered within the logs.
+	// If there are no logs, DEBUG is returned.
 	public LogLevel dump() {
 		LogLevel maxLevel = LogLevel.DEBUG;
 		for (LogEntry entry : this.data) {

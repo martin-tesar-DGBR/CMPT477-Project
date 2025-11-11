@@ -3,9 +3,9 @@ package ast;
 import lexer.LocatedString;
 
 public class IfNode extends ASTNode {
-	ASTNode cond;
-	BlockNode branchThen;
-	BlockNode branchElse;
+	public ASTNode cond;
+	public BlockNode branchThen;
+	public BlockNode branchElse;
 
 	IfNode(LocatedString lexeme, ASTNode cond, BlockNode branchThen, BlockNode branchElse) {
 		super(lexeme);

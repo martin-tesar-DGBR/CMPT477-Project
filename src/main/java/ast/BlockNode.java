@@ -5,7 +5,7 @@ import lexer.LocatedString;
 import java.util.List;
 
 public class BlockNode extends ASTNode {
-	List<ASTNode> children;
+	public List<ASTNode> children;
 
 	BlockNode(LocatedString lexeme) {
 		super(lexeme);

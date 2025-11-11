@@ -3,7 +3,7 @@ package ast;
 import lexer.LocatedString;
 
 public class LabelNode extends ASTNode {
-	LocatedString label;
+	public LocatedString label;
 
 	LabelNode(LocatedString lexeme) {
 		super(lexeme);

@@ -3,7 +3,7 @@ package ast;
 import lexer.LocatedString;
 
 public abstract class ASTNode {
-	LocatedString lexeme;
+	public LocatedString lexeme;
 
 	ASTNode(LocatedString lexeme) {
 		this.lexeme = lexeme;
