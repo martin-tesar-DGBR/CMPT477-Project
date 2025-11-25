@@ -61,6 +61,7 @@ public class VerifierTest {
 		testPass("src/test/java/verifier/pass/test5.txt");//
 		testPass("src/test/java/verifier/pass/test6.txt");
 		testPass("src/test/java/verifier/pass/test7.txt");
+		testPass("src/test/java/verifier/pass/test8.txt");
     }
 
     @Test

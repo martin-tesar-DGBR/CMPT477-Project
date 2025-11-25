@@ -5,18 +5,11 @@ import com.microsoft.z3.Context;
 import com.microsoft.z3.IntExpr;
 
 import ast.ASTNode;
-import ast.ASTVisitor;
-import ast.AssignmentNode;
-import ast.BlockNode;
 import ast.BoolCompareNode;
 import ast.BoolOperatorNode;
-import ast.CheckNode;
-import ast.ErrorNode;
-import ast.IfNode;
 import ast.IntConstantNode;
 import ast.IntOperatorNode;
 import ast.LabelNode;
-import ast.PrintNode;
 
 public class ASTNodeToZ3Convertor {
 

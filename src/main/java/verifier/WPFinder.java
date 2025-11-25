@@ -66,12 +66,28 @@ public class WPFinder {
         } else if (stmt instanceof PrintNode) {
         } else if (stmt instanceof BlockNode blockNode) {
             return findWPBlock(blockNode,postExpr);
+        } else if (stmt instanceof BoolOperatorNode boolOpNode) {
+            // for if statement branch conditions
+            BoolOperatorNode res = new BoolOperatorNode(
+                StaticToken.OR,
+                new BoolOperatorNode(StaticToken.NOT,boolOpNode,null),
+                postExpr
+            );
+            return res;
+        } else if (stmt instanceof BoolCompareNode boolCmpNode) {
+            // for if statement branch conditions
+            BoolOperatorNode res = new BoolOperatorNode(
+                StaticToken.OR,
+                new BoolOperatorNode(StaticToken.NOT,boolCmpNode,null),
+                postExpr
+            );
+            return res;
         } else if (stmt instanceof ErrorNode) {
             throw new RuntimeException("Cannot verify program with ErrorNode present.");
         } else {
             throw new IllegalStateException("Unexpected statement node type: " + stmt.getClass());
         }
-        return null;
+        return postExpr;
     }
 
     // replace functions
@@ -94,7 +110,7 @@ public class WPFinder {
         // when op is unaryminus, right is null
         if (!op.equals(BoolOperatorNode.Operator.NOT))
         {
-            right = replaceBool(node.right, x, E);
+            right = replaceBool(node.right, x, E);   
         }
         
         BoolOperatorNode res = node;

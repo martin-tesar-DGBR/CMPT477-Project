@@ -7,9 +7,9 @@ import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
 import com.microsoft.z3.Solver;
 import com.microsoft.z3.Status;
-import java.util.Map.Entry;
 
 import ast.*;
+import lexer.StaticToken;
 
 public class Verifier {
 
@@ -35,8 +35,20 @@ public class Verifier {
     }
 
     private void executeIf(IfNode node,ArrayList<ASTNode> currentStmts) {
-        executeBlock(node.branchThen, new ArrayList<>(currentStmts));
-        executeBlock(node.branchElse, new ArrayList<>(currentStmts));
+        BoolOperatorNode notC = new BoolOperatorNode(
+            StaticToken.NOT,
+            node.cond,
+            null 
+        );
+
+        ArrayList<ASTNode> currThenStmts = new ArrayList<>(currentStmts);
+        ArrayList<ASTNode> currElseStmts = new ArrayList<>(currentStmts);
+
+        currThenStmts.add(node.cond);
+        currElseStmts.add(notC);
+
+        executeBlock(node.branchThen, currThenStmts);
+        executeBlock(node.branchElse, currElseStmts);
 
         currentStmts.add(node);
     }
@@ -109,7 +121,8 @@ public class Verifier {
         } else if (stmt instanceof PrintNode) {
         } else if (stmt instanceof BlockNode blockNode) {
             executeBlock(blockNode,currentStmts);
-        } else if (stmt instanceof ErrorNode) {
+        }
+        else if (stmt instanceof ErrorNode) {
             throw new RuntimeException("Cannot verify program with ErrorNode present.");
         } else {
             throw new IllegalStateException("Unexpected statement node type: " + stmt.getClass());
