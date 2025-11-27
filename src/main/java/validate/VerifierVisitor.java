@@ -26,6 +26,10 @@ public class VerifierVisitor extends ASTVisitor.Default {
     // Stack to save variable states when entering if statements
     private Stack<Map<String, IntExpr>> variableStateStack;
     
+    // Save variable states after then and else branches for merging
+    private Map<String, IntExpr> stateAfterThen;
+    private Map<String, IntExpr> stateAfterElse;
+    
     // Counter for generating fresh variable names in SSA
     private Map<String, Integer> varVersion;
     
@@ -36,6 +40,8 @@ public class VerifierVisitor extends ASTVisitor.Default {
         this.assignmentConstraints = new ArrayList<>();
         this.pathConditions = new Stack<>();
         this.variableStateStack = new Stack<>();
+        this.stateAfterThen = null;
+        this.stateAfterElse = null;
         this.varVersion = new HashMap<>();
     }
     
@@ -116,6 +122,10 @@ public class VerifierVisitor extends ASTVisitor.Default {
         // Mark that we're entering then branch
         ifBranchState = 1;
         
+        // Initialize branch state tracking
+        stateAfterThen = null;
+        stateAfterElse = null;
+        
         // Push condition for then branch
         pushPathCondition(condExpr);
     }
@@ -131,23 +141,111 @@ public class VerifierVisitor extends ASTVisitor.Default {
             popPathCondition(); // Remove then branch condition
         }
         
-        // Restore variable state from before the if
-        // Variables assigned in branches are still accessible but constrained by path conditions
-        if (!variableStateStack.isEmpty()) {
-            variables = variableStateStack.pop();
-        }
+        // Get state before if
+        Map<String, IntExpr> stateBeforeIf = variableStateStack.isEmpty() 
+            ? new HashMap<>() 
+            : variableStateStack.pop();
+        
+        // Merge variable states from both branches
+        mergeVariableStates(stateBeforeIf, stateAfterThen, stateAfterElse, currentIfCondition);
         
         ifBranchState = 0;
         currentIfCondition = null;
+        stateAfterThen = null;
+        stateAfterElse = null;
+    }
+    
+    /**
+     * Merge variable states from before if, after then branch, and after else branch.
+     * Creates phi-node-like expressions for variables that differ between branches.
+     */
+    private void mergeVariableStates(Map<String, IntExpr> beforeIf, 
+                                     Map<String, IntExpr> afterThen,
+                                     Map<String, IntExpr> afterElse,
+                                     BoolExpr condition) {
+        // Collect all variable names from all states
+        Set<String> allVars = new HashSet<>();
+        if (beforeIf != null) allVars.addAll(beforeIf.keySet());
+        if (afterThen != null) allVars.addAll(afterThen.keySet());
+        if (afterElse != null) allVars.addAll(afterElse.keySet());
+        
+        variables.clear();
+        
+        for (String varName : allVars) {
+            IntExpr beforeValue = beforeIf != null ? beforeIf.get(varName) : null;
+            IntExpr thenValue = afterThen != null ? afterThen.get(varName) : null;
+            IntExpr elseValue = afterElse != null ? afterElse.get(varName) : null;
+            
+            IntExpr mergedValue;
+            
+            if (thenValue != null && elseValue != null) {
+                // Variable assigned in both branches - create phi-node
+                // mergedValue = (condition ? thenValue : elseValue)
+                // In Z3: (condition AND mergedValue == thenValue) OR (!condition AND mergedValue == elseValue)
+                mergedValue = createFreshVariable(varName);
+                
+                // Add constraint: if condition then mergedValue == thenValue else mergedValue == elseValue
+                BoolExpr thenCase = ctx.mkAnd(condition, ctx.mkEq(mergedValue, thenValue));
+                BoolExpr elseCase = ctx.mkAnd(ctx.mkNot(condition), ctx.mkEq(mergedValue, elseValue));
+                BoolExpr phiConstraint = ctx.mkOr(thenCase, elseCase);
+                assignmentConstraints.add(phiConstraint);
+                
+                logger.log(LogLevel.DEBUG, "Merged variable " + varName + " from both branches");
+            } else if (thenValue != null) {
+                // Only assigned in then branch
+                mergedValue = createFreshVariable(varName);
+                // mergedValue == thenValue when condition is true
+                BoolExpr constraint = ctx.mkImplies(condition, ctx.mkEq(mergedValue, thenValue));
+                assignmentConstraints.add(constraint);
+                // If not in condition, keep previous value
+                if (beforeValue != null) {
+                    BoolExpr elseCase = ctx.mkImplies(ctx.mkNot(condition), ctx.mkEq(mergedValue, beforeValue));
+                    assignmentConstraints.add(elseCase);
+                }
+            } else if (elseValue != null) {
+                // Only assigned in else branch
+                mergedValue = createFreshVariable(varName);
+                // mergedValue == elseValue when condition is false
+                BoolExpr constraint = ctx.mkImplies(ctx.mkNot(condition), ctx.mkEq(mergedValue, elseValue));
+                assignmentConstraints.add(constraint);
+                // If in condition, keep previous value
+                if (beforeValue != null) {
+                    BoolExpr thenCase = ctx.mkImplies(condition, ctx.mkEq(mergedValue, beforeValue));
+                    assignmentConstraints.add(thenCase);
+                }
+            } else {
+                // Not assigned in either branch, keep previous value
+                mergedValue = beforeValue;
+            }
+            
+            if (mergedValue != null) {
+                variables.put(varName, mergedValue);
+            }
+        }
     }
     
     @Override
     public void visitEnter(BlockNode node) {
-        // If we just finished the then branch (ifBranchState == 1),
-        // the next block is the else branch
-        if (ifBranchState == 1 && currentIfCondition != null) {
-            // We're now entering the else branch
+        // When entering a block while processing an if:
+        // - First block after if is the then branch (ifBranchState == 1)
+        // - Second block is the else branch (ifBranchState == 1, but we detect it's the second block)
+        // We detect else branch by checking if stateAfterThen is null
+        // (if it's not null, we already processed then branch)
+        if (ifBranchState == 1 && currentIfCondition != null && stateAfterThen == null) {
+            // This is the then branch - we're entering it
+            // Path condition is already on stack from visitEnter(IfNode)
+            // Nothing to do here
+        } else if (ifBranchState == 1 && currentIfCondition != null && stateAfterThen != null) {
+            // This is the else branch - we're entering it
             ifBranchState = 2;
+            
+            // Restore state before if for else branch
+            if (!variableStateStack.isEmpty()) {
+                variables = new HashMap<>(variableStateStack.peek());
+            } else {
+                variables = new HashMap<>();
+            }
+            
             // Pop the then condition and push the else condition
             if (!pathConditions.isEmpty()) {
                 popPathCondition(); // Remove then condition
@@ -158,6 +256,16 @@ public class VerifierVisitor extends ASTVisitor.Default {
     
     @Override
     public void visitExit(BlockNode node) {
+        // When exiting a block while processing an if:
+        // - First block exit is the then branch (ifBranchState == 1)
+        // - Second block exit is the else branch (ifBranchState == 2)
+        if (ifBranchState == 1 && currentIfCondition != null && stateAfterThen == null) {
+            // We just finished the then branch
+            stateAfterThen = new HashMap<>(variables);
+        } else if (ifBranchState == 2 && currentIfCondition != null) {
+            // We just finished the else branch
+            stateAfterElse = new HashMap<>(variables);
+        }
     }
     
     @Override
