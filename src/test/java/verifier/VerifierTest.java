@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import verifier.Verifier;
+import verifier.VerificationVisitor;
 
 import ast.ASTNode;
 import ast.Parser;
@@ -22,29 +22,26 @@ public class VerifierTest {
 			boolean pass = Logger.get(LogType.LEXER).dump() == LogLevel.DEBUG && Logger.get(LogType.PARSER).dump() == LogLevel.DEBUG;
 			Assert.assertTrue("Program " + filename + " failed parsing.", pass);
             
-            Verifier verifier = new Verifier();
-            verifier.run(program);
+            VerificationVisitor verifier = new VerificationVisitor();
+            program.acceptVisitor(verifier);
+			Assert.assertTrue("Program " + filename + " failed verification.", verifier.verifyCondition());
 		} catch (IOException e) {
 			Assert.fail("Could not open file " + filename);
 		}
 		Logger.clearLogs();
 	}
 
-    void testFail(String filename, String expectedMsg) {
+    void testFail(String filename) {
 		try {
 			Lexer lexer = Lexer.make(filename);
 			Parser parser = new Parser(lexer);
 			ASTNode program = parser.parseProgram();
 			boolean pass = Logger.get(LogType.LEXER).dump() == LogLevel.DEBUG && Logger.get(LogType.PARSER).dump() == LogLevel.DEBUG;
 			Assert.assertTrue("Program " + filename + " failed parsing.", pass);
-            
-			try {
-				Verifier verifier = new Verifier();
-            	verifier.run(program);
-				Assert.fail("Expected IllegalArgumentException to be thrown");
-			} catch (IllegalArgumentException e) {
-				Assert.assertEquals(e.getMessage(),expectedMsg);
-			}
+
+			VerificationVisitor verifier = new VerificationVisitor();
+			program.acceptVisitor(verifier);
+			Assert.assertFalse("Program " + filename + " passed verification.", verifier.verifyCondition());
 		} catch (IOException e) {
 			Assert.fail("Could not open file " + filename);
 		}
@@ -53,7 +50,6 @@ public class VerifierTest {
 
     @Test
     public void pass() {
-		System.out.println("Starting verifier pass tests...");
         testPass("src/test/java/verifier/pass/test1.txt");
 		testPass("src/test/java/verifier/pass/test2.txt");
 		testPass("src/test/java/verifier/pass/test3.txt");
@@ -67,27 +63,11 @@ public class VerifierTest {
 
     @Test
     public void fail() {
-		System.out.println("Starting verifier fail tests...");
-		testFail(
-			"src/test/java/verifier/fail/test1.txt",
-			"Check at line 2 failed"
-		);
-		testFail(
-			"src/test/java/verifier/fail/test2.txt",
-			"Check at line 6 failed"
-		);
-		testFail(
-			"src/test/java/verifier/fail/test3.txt",
-			"Check at line 10 failed"
-		);
-		testFail(
-			"src/test/java/verifier/fail/test4.txt",
-			"Check at line 5 failed"
-		);
-		testFail(
-			"src/test/java/verifier/fail/test5.txt",
-			"Check at line 13 failed"
-		);
+		testFail("src/test/java/verifier/fail/test1.txt");
+		testFail("src/test/java/verifier/fail/test2.txt");
+		testFail("src/test/java/verifier/fail/test3.txt");
+		testFail("src/test/java/verifier/fail/test4.txt");
+		testFail("src/test/java/verifier/fail/test5.txt");
     }
     
 }

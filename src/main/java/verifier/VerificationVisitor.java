@@ -1,4 +1,4 @@
-package validate;
+package verifier;
 
 import ast.*;
 import com.microsoft.z3.*;
@@ -37,7 +37,9 @@ public class VerificationVisitor extends ASTVisitor.Default {
 			throw new IllegalStateException("Verification visitor failed; number of weakest preconditions " + this.wp.size() + " not 1.");
 		}
 		Solver solver = this.ctx.mkSolver();
-		solver.add(ctx.mkNot(this.wp.pop()));
+		BoolExpr val = this.wp.pop();
+		System.out.println(val);
+		solver.add(ctx.mkNot(val));
 		Status status = solver.check();
 		return status == Status.UNSATISFIABLE;
 	}
@@ -177,7 +179,6 @@ public class VerificationVisitor extends ASTVisitor.Default {
 				BoolExpr exprR = this.boolExprTree.pop();
 				BoolExpr exprL = this.boolExprTree.pop();
 				expr = this.ctx.mkOr(exprL, exprR);
-				this.boolExprTree.push(expr);
 			}
 			case AND -> {
 				if (this.boolExprTree.size() < 2) {
@@ -186,7 +187,6 @@ public class VerificationVisitor extends ASTVisitor.Default {
 				BoolExpr exprR = this.boolExprTree.pop();
 				BoolExpr exprL = this.boolExprTree.pop();
 				expr = this.ctx.mkAnd(exprL, exprR);
-				this.boolExprTree.push(expr);
 			}
 			case NOT -> {
 				if (this.boolExprTree.size() < 1) {
