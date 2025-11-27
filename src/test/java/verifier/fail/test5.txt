@@ -1,0 +1,21 @@
+{
+    x := 1
+    y := 10
+    if x < y {
+        z := x + y
+        check(z > 10)
+        if z < y {
+            z := x + y + z
+            check(z < x + y)
+        }
+        else {
+            b := x - y
+            check(b > x - y || (z < y))
+        }
+    }
+    else {
+        z := x - y
+        check(z > 10)
+    }
+    check(z > 10)
+}

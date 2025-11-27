@@ -1,0 +1,9 @@
+{
+    x := 12
+    print(x)
+    y := 15
+    y := 5
+    y := 10
+    check(x > y)
+    print(y)
+}

@@ -37,17 +37,21 @@ public class Main {
             root.acceptVisitor(visitor);
             UsageVisitor usageVisitor = new UsageVisitor();
             root.acceptVisitor(usageVisitor);
-            Logger.get(LogType.VERIFIER).dump();
+            if (Logger.get(LogType.VERIFIER).dump() != LogLevel.DEBUG) {
+                return;
+            }
+            Logger.clearLogs();
 
             VerificationVisitor verificationVisitor = new VerificationVisitor();
             root.acceptVisitor(verificationVisitor);
 
-            System.out.println(verificationVisitor.verifyCondition());
+            if (Logger.get(LogType.VERIFIER).dump() != LogLevel.DEBUG) {
+                return;
+            }
+            Logger.clearLogs();
 
-            /*
             Interpreter interpreter = new Interpreter();
             interpreter.run(root);
-            */
         }
     }
 }
