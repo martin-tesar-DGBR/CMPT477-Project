@@ -74,5 +74,63 @@
     check(y > p)
     check(r < z)
 
+    check(x > y)
+    check(x == x)
+    check(!(y == x))
+    check((z > p))
+    check(z > q)
 
+    check(q > r)
+    check(p > r)
+    check((r < x))
+    check(y > p)
+    check(r < z)
+    
+    check(x > y)
+    check(x == x)
+    check(!(y == x))
+    check((z > p))
+    check(z > q)
+
+    check(q > r)
+    check(p > r)
+    check((r < x))
+    check(y > p)
+    check(r < z)
+
+    check(x > y)
+    check(x == x)
+    check(!(y == x))
+    check((z > p))
+    check(z > q)
+
+    check(q > r)
+    check(p > r)
+    check((r < x))
+    check(y > p)
+    check(r < z)
+
+    check(x > y)
+    check(x == x)
+    check(!(y == x))
+    check((z > p))
+    check(z > q)
+
+    check(q > r)
+    check(p > r)
+    check((r < x))
+    check(y > p)
+    check(r < z)
+
+    check(x > y)
+    check(x == x)
+    check(!(y == x))
+    check((z > p))
+    check(z > q)
+
+    check(q > r)
+    check(p > r)
+    check((r < x))
+    check(y > p)
+    check(r < z)
 }

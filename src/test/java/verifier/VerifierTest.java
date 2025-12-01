@@ -48,22 +48,56 @@ public class VerifierTest {
 	}
 
 	void testTime(String filename){
-		// warmup
-		for (int i = 0; i < 10; i++){
-			testPass(filename);
-		}
+		try {
+			Lexer lexer = Lexer.make(filename);
+			Parser parser = new Parser(lexer);
+			ASTNode program = parser.parseProgram();
+			boolean pass = lexer.dumpLogs() && program != null;
+			Assert.assertTrue("Program " + filename + " failed parsing.", pass);
+            
+            VerificationVisitor verifier = new VerificationVisitor();
+            program.acceptVisitor(verifier);
+			Assert.assertTrue("Program " + filename + " failed verification.", verifier.verifyCondition());
 
-		int numRuns = 30;
-		long totalTimeNs = 0;
-		for (int i = 0; i < numRuns; i++){
-			final long begin = System.nanoTime();
-			testPass(filename);
-			final long end = System.nanoTime();
-			totalTimeNs = totalTimeNs + (end - begin);
+			// warmup
+			for (int i = 0; i < 10; i++){
+				verifier = new VerificationVisitor();
+				program.acceptVisitor(verifier);
+				verifier.verifyCondition();
+			}
+
+			int numRuns = 30;
+			long totalVCGenTimeNs = 0;
+			long totalSolveTimeNs = 0;
+			long totalTimeNs = 0;
+			for (int i = 0; i < numRuns; i++){
+				verifier = new VerificationVisitor();
+				final long beginVCGen = System.nanoTime();
+				program.acceptVisitor(verifier);
+				final long endVCGen = System.nanoTime();
+
+				final long beginZ3Solve = System.nanoTime();
+				verifier.verifyCondition();
+				final long endZ3Solve = System.nanoTime();
+				
+				totalVCGenTimeNs += endVCGen - beginVCGen;
+				totalSolveTimeNs += endZ3Solve - beginZ3Solve;
+				totalTimeNs +=  endVCGen + endZ3Solve - beginZ3Solve - beginVCGen;
+			}
+
+			long totalVCGenTimeMs = TimeUnit.NANOSECONDS.toMillis(totalVCGenTimeNs);
+			long totalSolveTimeMs = TimeUnit.NANOSECONDS.toMillis(totalSolveTimeNs);
+			long totalTimeMs = TimeUnit.NANOSECONDS.toMillis(totalTimeNs);
+			long avgVCGenMs = totalVCGenTimeMs/numRuns;
+			long avgSolveMs = totalSolveTimeMs/numRuns;
+			long avgTimeMs = totalTimeMs/numRuns;
+			System.out.println("Total average time for verifying " + filename + " is " + avgTimeMs + "ms");
+			System.out.println("Average time for VC generation of " + filename + " is " + avgVCGenMs + "ms");
+			System.out.println("Average time for Z3 solving " + filename + " is " + avgSolveMs + "ms");
+			System.out.println();
+		} catch (IOException e) {
+			Assert.fail("Could not open file " + filename);
 		}
-		long totalTimeMs = TimeUnit.NANOSECONDS.toMillis(totalTimeNs);
-		long avgTimeMs = totalTimeMs/numRuns;
-		System.out.println("Average time for " + filename + " is " + avgTimeMs + "ms");
 	}
 
     @Test
@@ -88,7 +122,9 @@ public class VerifierTest {
 		testPass("src/test/java/verifier/pass/test16c.txt");
 		testPass("src/test/java/verifier/pass/test16d.txt");
 		testPass("src/test/java/verifier/pass/test16e.txt");
-		testTime("src/test/java/verifier/pass/test16f.txt");
+		testPass("src/test/java/verifier/pass/test16f.txt");
+		testPass("src/test/java/verifier/pass/test16g.txt");
+		testPass("src/test/java/verifier/pass/test16h.txt");
     }
 
     @Test
@@ -119,9 +155,14 @@ public class VerifierTest {
 		testTime("src/test/java/verifier/pass/test13.txt");
 		testTime("src/test/java/verifier/pass/test14.txt");
 		testTime("src/test/java/verifier/pass/test15.txt");
-		testTime("src/test/java/verifier/pass/test16a.txt");
-		testTime("src/test/java/verifier/pass/test16b.txt");
-		testTime("src/test/java/verifier/pass/test16c.txt");
+		// testTime("src/test/java/verifier/pass/test16a.txt"); // 1
+		// testTime("src/test/java/verifier/pass/test16b.txt"); // 10
+		// testTime("src/test/java/verifier/pass/test16c.txt"); // 50
+		// testTime("src/test/java/verifier/pass/test16d.txt"); // 100
+		// testTime("src/test/java/verifier/pass/test16e.txt"); // 200
+		// testTime("src/test/java/verifier/pass/test16f.txt"); // 500
+		// testTime("src/test/java/verifier/pass/test16g.txt"); // 1000
+		// testTime("src/test/java/verifier/pass/test16h.txt"); // 1500
 	}
     
 }
