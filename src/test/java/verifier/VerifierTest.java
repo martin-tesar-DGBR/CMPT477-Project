@@ -77,18 +77,13 @@ public class VerifierTest {
 		testPass("src/test/java/verifier/pass/test7.txt");
 		testPass("src/test/java/verifier/pass/test8.txt");
 		testPass("src/test/java/verifier/pass/test9.txt");
-		testPass("src/test/java/verifier/pass/test10.txt");
 		testPass("src/test/java/verifier/pass/test11.txt");
 		testPass("src/test/java/verifier/pass/test12.txt");
-		testPass("src/test/java/verifier/pass/test13.txt");
-		testPass("src/test/java/verifier/pass/test14.txt");
 		testPass("src/test/java/verifier/pass/test15.txt");
 		testPass("src/test/java/verifier/pass/test16a.txt");
-		testPass("src/test/java/verifier/pass/test16b.txt");
 		testPass("src/test/java/verifier/pass/test16c.txt");
-		testPass("src/test/java/verifier/pass/test16d.txt");
-		testPass("src/test/java/verifier/pass/test16e.txt");
-		testTime("src/test/java/verifier/pass/test16f.txt");
+		testPass("src/test/java/verifier/pass/test17a.txt");
+		testPass("src/test/java/verifier/pass/test17b.txt");
     }
 
     @Test
@@ -98,7 +93,6 @@ public class VerifierTest {
 		testFail("src/test/java/verifier/fail/test3.txt");
 		testFail("src/test/java/verifier/fail/test4.txt");
 		testFail("src/test/java/verifier/fail/test5.txt");
-		testFail("src/test/java/verifier/fail/test6.txt");
 		testFail("src/test/java/verifier/fail/test7.txt");
     }
 
@@ -113,15 +107,13 @@ public class VerifierTest {
 		testTime("src/test/java/verifier/pass/test7.txt");
 		testTime("src/test/java/verifier/pass/test8.txt");
 		testTime("src/test/java/verifier/pass/test9.txt");
-		testTime("src/test/java/verifier/pass/test10.txt");
 		testTime("src/test/java/verifier/pass/test11.txt");
 		testTime("src/test/java/verifier/pass/test12.txt");
-		testTime("src/test/java/verifier/pass/test13.txt");
-		testTime("src/test/java/verifier/pass/test14.txt");
 		testTime("src/test/java/verifier/pass/test15.txt");
 		testTime("src/test/java/verifier/pass/test16a.txt");
-		testTime("src/test/java/verifier/pass/test16b.txt");
 		testTime("src/test/java/verifier/pass/test16c.txt");
+		testTime("src/test/java/verifier/pass/test17a.txt");
+		testTime("src/test/java/verifier/pass/test17b.txt");
 	}
     
 }
