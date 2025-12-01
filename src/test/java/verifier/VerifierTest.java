@@ -84,6 +84,7 @@ public class VerifierTest {
 		testPass("src/test/java/verifier/pass/test16c.txt");
 		testPass("src/test/java/verifier/pass/test17a.txt");
 		testPass("src/test/java/verifier/pass/test17b.txt");
+		testPass("src/test/java/verifier/pass/test18.txt");
     }
 
     @Test
@@ -114,6 +115,7 @@ public class VerifierTest {
 		testTime("src/test/java/verifier/pass/test16c.txt");
 		testTime("src/test/java/verifier/pass/test17a.txt");
 		testTime("src/test/java/verifier/pass/test17b.txt");
+		testTime("src/test/java/verifier/pass/test18.txt");
 	}
     
 }
